@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="WorkSignals™ — A diagnostic tool for understanding the six signals that shape how we experience our work." />
+  <title>WorkSignals™ | Integri Group</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>* { box-sizing: border-box; margin: 0; padding: 0; } body { font-family: Georgia, serif; }</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState } = React;
+
+
+const BRAND = {
+  indigoDye: "#22435F",
+  pacificCyan: "#00A7C6",
+  teal: "#008181",
+  spanishOrange: "#F36C24",
+  fountainBlue: "#68A1AF",
+  springGreen: "#81B5A1",
+  mintGreen: "#BDE3DA",
+  antiFlashWhite: "#F1F1F2",
+  firefly: "#1C343B",
+};
+
+const LOGO_SRC = "/logo.png";
+
+const signals = [
+  {
+    id: 1,
+    title: "How I Work",
+    subtitle: "Habits, rhythms, focus, energy",
+    definition: "This is what I bring to my work every day — in my head, heart and hands — that makes me uniquely qualified to do my work.",
+    type: "personal",
+    color: BRAND.indigoDye,
+    accent: BRAND.pacificCyan,
+    icon: "⚡",
+    questions: [
+      "I know what great work looks like for me this week.",
+      "I spend most of my time doing work that plays to my strengths.",
+      "I make meaningful progress on my most important priorities.",
+      "I am able to focus without constant interruptions.",
+      "I have habits and rituals that set me up for my best work.",
+      "I manage my energy as intentionally as I manage my time.",
+      "I protect time and boundaries that allow me to do my best work.",
+      "I bring the mindset and attitude to my work that I want to bring.",
+    ],
+  },
+  {
+    id: 2,
+    title: "How I Feel About My Work",
+    subtitle: "Emotional experience, meaning, motivation",
+    definition: "This is how my work and all that goes into it makes me feel every day — about the deeper value I offer and the deeper value I receive.",
+    type: "personal",
+    color: BRAND.teal,
+    accent: BRAND.springGreen,
+    icon: "🌱",
+    questions: [
+      "I find meaning and purpose in my work.",
+      "I feel psychologically safe to speak up and share ideas.",
+      "I feel valued for the contributions I make.",
+      "I feel confident in my ability to succeed in my role.",
+      "I end most weeks feeling more energized than drained.",
+      "I feel a sense of pride in the work I do.",
+      "My work aligns with my personal values.",
+      "I feel optimistic about where my work is taking me.",
+    ],
+  },
+  {
+    id: 3,
+    title: "How Enabled I Am to Do My Work",
+    subtitle: "Clarity, tools, support, friction removal",
+    definition: "This is what my work environment brings to me every day to help me do my best work and to be my best self.",
+    type: "system",
+    color: BRAND.firefly,
+    accent: BRAND.fountainBlue,
+    icon: "🔧",
+    questions: [
+      "I have clarity on my top priorities.",
+      "I have the right tools, systems, and resources to be effective.",
+      "I receive the support I need to remove blockers.",
+      "Decisions are made at the right level and with clarity.",
+      "My manager actively helps reduce unnecessary friction.",
+      "I have a clear understanding of what success looks like in my role.",
+      "I am given the autonomy I need to do my best work.",
+      "I receive feedback that helps me grow and improve.",
+    ],
+  },
+  {
+    id: 4,
+    title: "How I Work With Others",
+    subtitle: "Trust, communication, collaboration",
+    definition: "This is how I communicate, collaborate, partner, delegate, influence, lead, follow and manage others — and how these are done with, for and to me by others.",
+    type: "system",
+    color: BRAND.indigoDye,
+    accent: BRAND.spanishOrange,
+    icon: "🤝",
+    questions: [
+      "I have strong, trusting relationships with my team.",
+      "Communication with others is clear and consistent.",
+      "We address tensions and conflicts early and constructively.",
+      "We hold one another accountable to commitments.",
+      "Collaboration across roles is smooth and effective.",
+      "I feel heard and respected in team conversations.",
+      "I have the relationships and influence I need to get things done.",
+      "My team brings out the best in me.",
+    ],
+  },
+  {
+    id: 5,
+    title: "When I Work",
+    subtitle: "Rhythms, predictability, load, boundaries",
+    definition: "This is when I am at my best — most creative, most productive, most collaborative — and whether my work life reflects and respects that.",
+    type: "system",
+    color: BRAND.teal,
+    accent: BRAND.pacificCyan,
+    icon: "🕐",
+    questions: [
+      "My workload feels manageable and sustainable.",
+      "My weeks have a reasonable level of predictability.",
+      "I have flexibility in how I plan and manage my time.",
+      "I have time for deep, focused work.",
+      "My boundaries between work and life are respected.",
+      "I work at the times when I am naturally at my best.",
+      "I rarely feel overwhelmed by the volume or pace of work.",
+      "I have enough recovery time to consistently bring my best to my work.",
+    ],
+  },
+  {
+    id: 6,
+    title: "Where I Work",
+    subtitle: "Physical & digital environment, hybrid",
+    definition: "This is where I am at my best — most creative, most productive, most collaborative — and whether my work life reflects and respects that.",
+    type: "system",
+    color: BRAND.firefly,
+    accent: BRAND.springGreen,
+    icon: "🏢",
+    questions: [
+      "I can choose the environment that best supports my work.",
+      "My physical environment supports focus and productivity.",
+      "Digital tools make collaboration easy and effective.",
+      "I feel connected to the team regardless of location.",
+      "My work environment reduces, rather than adds, friction.",
+      "My environment supports my creativity and thinking.",
+      "I have the space and privacy I need to do my best work.",
+      "I feel equally effective regardless of where I am working.",
+    ],
+  },
+];
+
+const getSignalBand = (score) => {
+  if (score >= 34) return { label: "Very Healthy Signal", color: "#fff", bg: BRAND.teal };
+  if (score >= 26) return { label: "Healthy Signal", color: "#fff", bg: BRAND.pacificCyan };
+  if (score >= 18) return { label: "Mixed Signal", color: BRAND.firefly, bg: BRAND.mintGreen };
+  if (score >= 10) return { label: "Weak Signal", color: "#fff", bg: BRAND.spanishOrange };
+  return { label: "At-Risk Signal", color: "#fff", bg: "#c0392b" };
+};
+
+const getTotalBand = (total) => {
+  if (total >= 194) return { label: "Healthy Signals", color: BRAND.teal, desc: "You have supportive systems, strong habits, and alignment across how, when, where, and with whom you work." };
+  if (total >= 145) return { label: "Mixed Signals", color: BRAND.pacificCyan, desc: "Most areas are working, but 1–2 signals may be restricting energy, performance, or fulfillment." };
+  if (total >= 97) return { label: "Weak Signals Emerging", color: BRAND.spanishOrange, desc: "Several signals may be under strain. You may feel friction, fatigue, or tension in your work experience." };
+  return { label: "At-Risk Signals", color: "#c0392b", desc: "Multiple systemic, structural, or interpersonal barriers may be affecting performance, energy, and well-being." };
+};
+
+const scaleLabels = ["Strongly Disagree", "Disagree", "Neutral / Sometimes", "Agree", "Strongly Agree"];
+
+function IntegriLogo({ size = 40 }) {
+  return (
+    <img src={LOGO_SRC} alt="Integri Group" style={{ height: size, width: "auto", display: "block" }} />
+  );
+}
+
+export default function WorkSignals() {
+  const [phase, setPhase] = useState("intro");
+  const [respondent, setRespondent] = useState({ name: "", email: "" });
+  const [formErrors, setFormErrors] = useState({});
+  const [currentSignal, setCurrentSignal] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [animating, setAnimating] = useState(false);
+  const [emailStatus, setEmailStatus] = useState(null);
+  const [sending, setSending] = useState(false);
+
+  const totalQuestions = signals.reduce((acc, s) => acc + s.questions.length, 0);
+  const answeredQuestions = Object.keys(answers).length;
+  const progress = (answeredQuestions / totalQuestions) * 100;
+  const currentSig = signals[currentSignal];
+  const sigAnswers = currentSig.questions.map((_, i) => answers[`${currentSignal}-${i}`]);
+  const sigComplete = sigAnswers.every((a) => a !== undefined);
+
+  const signalScores = signals.map((sig, si) =>
+    sig.questions.reduce((acc, _, qi) => acc + (answers[`${si}-${qi}`] || 0), 0)
+  );
+  const totalScore = signalScores.reduce((a, b) => a + b, 0);
+
+  const handleAnswer = (sigIdx, qIdx, value) => {
+    setAnswers((prev) => ({ ...prev, [`${sigIdx}-${qIdx}`]: value }));
+  };
+
+  const goNext = () => {
+    setAnimating(true);
+    setTimeout(() => {
+      if (currentSignal < signals.length - 1) setCurrentSignal(currentSignal + 1);
+      else setPhase("gate");
+      setAnimating(false);
+    }, 300);
+  };
+
+  const goPrev = () => {
+    if (currentSignal > 0) {
+      setAnimating(true);
+      setTimeout(() => { setCurrentSignal(currentSignal - 1); setAnimating(false); }, 300);
+    }
+  };
+
+  const handleGateSubmit = () => {
+    const errors = {};
+    if (!respondent.name.trim()) errors.name = "Please enter your name.";
+    if (!respondent.email.trim() || !/\S+@\S+\.\S+/.test(respondent.email)) errors.email = "Please enter a valid email.";
+    setFormErrors(errors);
+    if (Object.keys(errors).length === 0) {
+      setPhase("results");
+      sendResults();
+    }
+  };
+
+  const restart = () => { setAnswers({}); setCurrentSignal(0); setPhase("intro"); setRespondent({ name: "", email: "" }); setEmailStatus(null); setFormErrors({}); };
+
+  const sendResults = async () => {
+    setSending(true);
+    const band = getTotalBand(totalScore);
+    const signalBreakdown = signals.map((sig, i) => {
+      const score = signalScores[i];
+      const b = getSignalBand(score);
+      return `${sig.title}: ${score}/40 (${b.label})`;
+    }).join("\n");
+
+    try {
+      await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service_id: "service_250jnbk",
+          template_id: "worksignals_template",
+          user_id: "Cy4Dt65Faf8OvZsjV",
+          template_params: {
+            to_name: respondent.name,
+            to_email: respondent.email,
+            total_score: `${totalScore}/240`,
+            overall_band: band.label,
+            signal_breakdown: signalBreakdown,
+            personal_score: `${signalScores[0] + signalScores[1]}/80`,
+            system_score: `${signalScores[2] + signalScores[3] + signalScores[4] + signalScores[5]}/160`,
+            reply_to: "robert.teed@integrigroup.com",
+          },
+        }),
+      });
+
+      await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service_id: "service_250jnbk",
+          template_id: "worksignals_template",
+          user_id: "Cy4Dt65Faf8OvZsjV",
+          template_params: {
+            to_name: "Robert Teed",
+            to_email: "robert.teed@integrigroup.com",
+            total_score: `${totalScore}/240`,
+            overall_band: band.label,
+            signal_breakdown: signalBreakdown,
+            personal_score: `${signalScores[0] + signalScores[1]}/80`,
+            system_score: `${signalScores[2] + signalScores[3] + signalScores[4] + signalScores[5]}/160`,
+            reply_to: respondent.email,
+          },
+        }),
+      });
+
+      const sheetResponse = await fetch("https://sheetdb.io/api/v1/bowdesja99vxx", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          data: [{
+            Date: new Date().toLocaleString(),
+            Name: respondent.name,
+            Email: respondent.email,
+            "Total Score": totalScore,
+            "Overall Band": band.label,
+            "How I Work": signalScores[0],
+            "How I Feel About My Work": signalScores[1],
+            "How Enabled I Am to Do My Work": signalScores[2],
+            "How I Work With Others": signalScores[3],
+            "When I Work": signalScores[4],
+            "Where I Work": signalScores[5],
+          }]
+        }),
+      });
+      const sheetResult = await sheetResponse.json();
+      console.log("SheetDB response:", JSON.stringify(sheetResult));
+
+      setEmailStatus("sent");
+    } catch (e) {
+      console.error("Submission error:", e);
+      setEmailStatus("error");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const inputStyle = (field) => ({
+    width: "100%",
+    padding: "0.75rem 1rem",
+    border: `1.5px solid ${formErrors[field] ? BRAND.spanishOrange : "#d0dde6"}`,
+    borderRadius: "6px",
+    fontSize: "1rem",
+    fontFamily: "Georgia, serif",
+    color: BRAND.firefly,
+    background: "#fff",
+    outline: "none",
+    boxSizing: "border-box",
+  });
+
+  // ─── INTRO ───────────────────────────────────────────────────────────────────
+  if (phase === "intro") {
+    return (
+      <div style={{ minHeight: "100vh", background: BRAND.antiFlashWhite, fontFamily: "Georgia, serif", display: "flex", flexDirection: "column" }}>
+        <header style={{ background: "#fff", borderBottom: `3px solid ${BRAND.pacificCyan}`, padding: "1rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <IntegriLogo size={36} />
+          <div style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", color: BRAND.fountainBlue }}>Leadership Diagnostic</div>
+        </header>
+
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+          <div style={{ maxWidth: 580, width: "100%", textAlign: "center" }}>
+            <div style={{ marginBottom: "2rem" }}>
+              <div style={{ fontSize: "clamp(2.8rem,8vw,4.5rem)", color: BRAND.indigoDye, fontWeight: "400", lineHeight: 1, marginBottom: "0.1rem", letterSpacing: "-0.02em" }}>
+                Work<span style={{ color: BRAND.spanishOrange }}>Signals</span><sup style={{ fontSize: "0.4em", color: BRAND.fountainBlue, verticalAlign: "super" }}>TM</sup>
+              </div>
+              <div style={{ width: 50, height: 3, background: BRAND.pacificCyan, margin: "1rem auto" }} />
+              <p style={{ color: BRAND.fountainBlue, fontSize: "1.05rem", lineHeight: 1.75, margin: "0 auto", maxWidth: 460, fontStyle: "italic" }}>
+                A diagnostic tool for understanding the six signals that shape how we experience our work.
+              </p>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem", marginBottom: "2.5rem" }}>
+              {signals.map(sig => (
+                <div key={sig.id} style={{ background: "#fff", border: "1px solid #e0eaf0", borderRadius: "8px", padding: "1rem 0.75rem", textAlign: "center" }}>
+                  <div style={{ fontSize: "1.4rem", marginBottom: "0.3rem" }}>{sig.icon}</div>
+                  <div style={{ fontSize: "0.68rem", color: BRAND.indigoDye, letterSpacing: "0.04em", lineHeight: 1.3 }}>{sig.title}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", gap: "1rem", justifyContent: "center", marginBottom: "2rem" }}>
+              {[{ n: "48 questions" }, { n: "~12 minutes" }, { n: "Instant results" }].map(i => (
+                <div key={i.n} style={{ fontSize: "0.78rem", color: BRAND.fountainBlue, background: BRAND.mintGreen, padding: "0.35rem 0.9rem", borderRadius: "20px" }}>{i.n}</div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setPhase("survey")}
+              style={{ background: BRAND.indigoDye, color: "#fff", border: "none", padding: "1rem 3rem", fontSize: "1rem", letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", borderRadius: "6px", fontFamily: "Georgia, serif", transition: "background 0.2s" }}
+              onMouseOver={e => e.target.style.background = BRAND.firefly}
+              onMouseOut={e => e.target.style.background = BRAND.indigoDye}
+            >
+              Begin Assessment →
+            </button>
+          </div>
+        </div>
+
+        <footer style={{ background: "#fff", borderTop: "1px solid #e0eaf0", padding: "0.75rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <IntegriLogo size={24} />
+          <div style={{ fontSize: "0.7rem", color: "#9aacbe" }}>© 2025 Integri Group · WorkSignals<sup style={{ fontSize: "0.7em" }}>TM</sup> · All rights reserved</div>
+        </footer>
+      </div>
+    );
+  }
+
+  // ─── GATE ────────────────────────────────────────────────────────────────────
+  if (phase === "gate") {
+    return (
+      <div style={{ minHeight: "100vh", background: BRAND.antiFlashWhite, fontFamily: "Georgia, serif", display: "flex", flexDirection: "column" }}>
+        <header style={{ background: "#fff", borderBottom: `3px solid ${BRAND.pacificCyan}`, padding: "1rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <IntegriLogo size={34} />
+          <div style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", color: BRAND.fountainBlue }}>WorkSignals<sup style={{ fontSize: "0.7em" }}>TM</sup></div>
+        </header>
+
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+          <div style={{ maxWidth: 480, width: "100%" }}>
+            <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>🎉</div>
+              <h2 style={{ color: BRAND.indigoDye, fontWeight: "400", fontSize: "1.8rem", margin: "0 0 0.5rem" }}>Assessment Complete!</h2>
+              <p style={{ color: BRAND.fountainBlue, fontSize: "0.95rem", lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
+                Enter your name and email to unlock your WorkSignals<sup style={{ fontSize: "0.7em" }}>TM</sup> profile and receive your results.
+              </p>
+            </div>
+
+            <div style={{ background: "#fff", borderRadius: "10px", padding: "2rem", boxShadow: `0 2px 20px ${BRAND.indigoDye}15`, border: "1px solid #e0eaf0" }}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label style={{ display: "block", fontSize: "0.8rem", color: BRAND.fountainBlue, marginBottom: "0.4rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>Full Name</label>
+                <input style={inputStyle("name")} placeholder="Your name" value={respondent.name}
+                  onChange={(e) => setRespondent(p => ({ ...p, name: e.target.value }))}
+                  onKeyDown={(e) => e.key === "Enter" && handleGateSubmit()} />
+                {formErrors.name && <div style={{ color: BRAND.spanishOrange, fontSize: "0.75rem", marginTop: "0.25rem" }}>{formErrors.name}</div>}
+              </div>
+              <div style={{ marginBottom: "1.5rem" }}>
+                <label style={{ display: "block", fontSize: "0.8rem", color: BRAND.fountainBlue, marginBottom: "0.4rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>Email Address</label>
+                <input style={inputStyle("email")} placeholder="your@email.com" type="email" value={respondent.email}
+                  onChange={(e) => setRespondent(p => ({ ...p, email: e.target.value }))}
+                  onKeyDown={(e) => e.key === "Enter" && handleGateSubmit()} />
+                {formErrors.email && <div style={{ color: BRAND.spanishOrange, fontSize: "0.75rem", marginTop: "0.25rem" }}>{formErrors.email}</div>}
+                <div style={{ fontSize: "0.72rem", color: "#9aacbe", marginTop: "0.4rem" }}>Your results will be sent to this address.</div>
+              </div>
+              <button onClick={handleGateSubmit}
+                style={{ width: "100%", background: BRAND.indigoDye, color: "#fff", border: "none", padding: "1rem", fontSize: "1rem", letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", borderRadius: "6px", fontFamily: "Georgia, serif", transition: "background 0.2s" }}
+                onMouseOver={e => e.target.style.background = BRAND.firefly}
+                onMouseOut={e => e.target.style.background = BRAND.indigoDye}>
+                View My Results →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <footer style={{ background: "#fff", borderTop: "1px solid #e0eaf0", padding: "0.75rem 2rem", textAlign: "center" }}>
+          <div style={{ fontSize: "0.7rem", color: "#9aacbe" }}>© 2025 Integri Group · WorkSignals<sup style={{ fontSize: "0.7em" }}>TM</sup> · All rights reserved</div>
+        </footer>
+      </div>
+    );
+  }
+
+  // ─── SURVEY ──────────────────────────────────────────────────────────────────
+  if (phase === "survey") {
+    return (
+      <div style={{ minHeight: "100vh", background: BRAND.antiFlashWhite, fontFamily: "Georgia, serif" }}>
+        <header style={{ background: "#fff", borderBottom: `3px solid ${BRAND.pacificCyan}`, padding: "0.75rem 2rem" }}>
+          <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", alignItems: "center", gap: "1.5rem" }}>
+            <IntegriLogo size={30} />
+            <div style={{ flex: 1, height: 4, background: "#e0eaf0", borderRadius: 2 }}>
+              <div style={{ height: "100%", width: `${progress}%`, background: currentSig.accent, borderRadius: 2, transition: "width 0.4s ease" }} />
+            </div>
+            <div style={{ fontSize: "0.8rem", color: BRAND.fountainBlue, whiteSpace: "nowrap" }}>{answeredQuestions}/{totalQuestions}</div>
+          </div>
+        </header>
+
+        <div style={{ background: "#fff", borderBottom: "1px solid #e0eaf0", padding: "0 2rem" }}>
+          <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", overflowX: "auto" }}>
+            {signals.map((sig, idx) => {
+              const done = sig.questions.every((_, qi) => answers[`${idx}-${qi}`] !== undefined);
+              return (
+                <button key={idx} onClick={() => setCurrentSignal(idx)} style={{ padding: "0.65rem 0.9rem", border: "none", background: "none", cursor: "pointer", borderBottom: currentSignal === idx ? `3px solid ${sig.accent}` : "3px solid transparent", color: currentSignal === idx ? sig.color : "#9aacbe", fontSize: "0.7rem", letterSpacing: "0.05em", textTransform: "uppercase", whiteSpace: "nowrap", fontFamily: "Georgia, serif", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                  <span>{sig.icon}</span><span>{sig.title}</span>{done && <span style={{ color: BRAND.teal }}>✓</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "2rem", opacity: animating ? 0 : 1, transition: "opacity 0.3s" }}>
+          <div style={{ marginBottom: "1.5rem" }}>
+            <div style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: currentSig.accent, marginBottom: "0.4rem" }}>
+              Signal {currentSig.id} of 6 · {currentSig.type === "personal" ? "Personal Signal" : "System Signal"}
+            </div>
+            <h2 style={{ fontSize: "1.8rem", color: currentSig.color, margin: "0 0 0.4rem", fontWeight: "400" }}>{currentSig.title}</h2>
+            <p style={{ color: BRAND.fountainBlue, margin: "0 0 0.5rem", fontSize: "0.9rem", fontStyle: "italic" }}>{currentSig.subtitle}</p>
+            <p style={{ color: BRAND.firefly, margin: 0, fontSize: "0.88rem", lineHeight: 1.6, background: BRAND.mintGreen, padding: "0.75rem 1rem", borderRadius: "6px", borderLeft: `3px solid ${currentSig.accent}` }}>
+              {currentSig.definition}
+            </p>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "0.4rem 0", marginBottom: "0.75rem", borderBottom: `1px solid #e0eaf0` }}>
+            {scaleLabels.map((label, i) => (
+              <div key={i} style={{ fontSize: "0.6rem", color: "#9aacbe", textAlign: "center", flex: 1 }}>
+                <div style={{ fontWeight: "600", color: BRAND.fountainBlue, marginBottom: "0.15rem" }}>{i + 1}</div>
+                <div style={{ display: i === 0 || i === 4 ? "block" : "none", lineHeight: 1.2 }}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "2.5rem" }}>
+            {currentSig.questions.map((q, qi) => {
+              const key = `${currentSignal}-${qi}`;
+              const selected = answers[key];
+              return (
+                <div key={qi} style={{ background: "#fff", borderRadius: "8px", padding: "1.25rem 1.5rem", border: `1.5px solid ${selected !== undefined ? currentSig.accent + "66" : "#e0eaf0"}`, boxShadow: selected !== undefined ? `0 2px 12px ${currentSig.accent}18` : "none", transition: "all 0.2s" }}>
+                  <p style={{ margin: "0 0 1rem", color: BRAND.firefly, fontSize: "0.95rem", lineHeight: 1.55 }}>
+                    <span style={{ color: currentSig.accent, marginRight: "0.5rem", fontSize: "0.8rem" }}>{currentSignal * 8 + qi + 1}.</span>
+                    {q}
+                  </p>
+                  <div style={{ display: "flex", gap: "0.6rem" }}>
+                    {[1, 2, 3, 4, 5].map((val) => (
+                      <button key={val} onClick={() => handleAnswer(currentSignal, qi, val)}
+                        style={{ flex: 1, height: 42, borderRadius: "6px", border: selected === val ? `2px solid ${currentSig.accent}` : "2px solid #e0eaf0", background: selected === val ? currentSig.color : "#f8f9fa", color: selected === val ? "#fff" : BRAND.fountainBlue, fontSize: "0.95rem", fontWeight: "600", cursor: "pointer", transition: "all 0.15s", fontFamily: "Georgia, serif" }}
+                        onMouseOver={e => { if (selected !== val) { e.target.style.background = currentSig.accent + "18"; e.target.style.borderColor = currentSig.accent; } }}
+                        onMouseOut={e => { if (selected !== val) { e.target.style.background = "#f8f9fa"; e.target.style.borderColor = "#e0eaf0"; } }}
+                      >{val}</button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <button onClick={goPrev} disabled={currentSignal === 0} style={{ padding: "0.75rem 1.5rem", border: `1px solid #e0eaf0`, background: "#fff", color: currentSignal === 0 ? "#ccc" : BRAND.indigoDye, cursor: currentSignal === 0 ? "not-allowed" : "pointer", borderRadius: "6px", fontSize: "0.85rem", fontFamily: "Georgia, serif" }}>
+              ← Previous
+            </button>
+            <div style={{ fontSize: "0.78rem", color: BRAND.fountainBlue }}>
+              {sigComplete ? <span style={{ color: BRAND.teal }}>✓ Section complete</span> : `${sigAnswers.filter(Boolean).length} of ${currentSig.questions.length} answered`}
+            </div>
+            <button onClick={goNext} disabled={!sigComplete}
+              style={{ padding: "0.75rem 1.75rem", border: "none", background: sigComplete ? currentSig.color : "#ccc", color: "#fff", cursor: sigComplete ? "pointer" : "not-allowed", borderRadius: "6px", fontSize: "0.85rem", fontFamily: "Georgia, serif", transition: "background 0.2s" }}>
+              {currentSignal === signals.length - 1 ? "View Results →" : "Next →"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── RESULTS ─────────────────────────────────────────────────────────────────
+  const totalBand = getTotalBand(totalScore);
+  const personalScore = signalScores[0] + signalScores[1];
+  const systemScore = signalScores[2] + signalScores[3] + signalScores[4] + signalScores[5];
+
+  return (
+    <div style={{ minHeight: "100vh", background: BRAND.antiFlashWhite, fontFamily: "Georgia, serif" }}>
+      <header style={{ background: "#fff", borderBottom: `3px solid ${BRAND.pacificCyan}`, padding: "1rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <IntegriLogo size={34} />
+        <div style={{ fontSize: "0.7rem", letterSpacing: "0.15em", textTransform: "uppercase", color: BRAND.fountainBlue }}>
+          WorkSignals<sup style={{ fontSize: "0.7em" }}>TM</sup> Results · {respondent.name}
+        </div>
+      </header>
+
+      <div style={{ maxWidth: 780, margin: "0 auto", padding: "2rem" }}>
+        <div style={{ background: BRAND.indigoDye, borderRadius: "12px", padding: "2.5rem", textAlign: "center", marginBottom: "1.5rem", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, right: 0, width: 200, height: 200, background: BRAND.pacificCyan, opacity: 0.06, borderRadius: "50%", transform: "translate(60px,-60px)" }} />
+          <div style={{ fontSize: "0.7rem", letterSpacing: "0.25em", textTransform: "uppercase", color: BRAND.fountainBlue, marginBottom: "0.75rem" }}>Your WorkSignals<sup style={{ fontSize: "0.7em" }}>TM</sup> Profile</div>
+          <div style={{ fontSize: "4.5rem", color: "#fff", fontWeight: "400", lineHeight: 1 }}>
+            {totalScore}<span style={{ fontSize: "1.8rem", color: BRAND.fountainBlue }}>/240</span>
+          </div>
+          <div style={{ marginTop: "0.5rem", fontSize: "1.1rem", color: BRAND.springGreen, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: "600" }}>
+            {totalBand.label}
+          </div>
+          <p style={{ color: BRAND.mintGreen, fontSize: "0.9rem", margin: "0.75rem auto 0", maxWidth: 440, lineHeight: 1.6 }}>{totalBand.desc}</p>
+          {emailStatus === "sent" && (
+            <div style={{ marginTop: "1rem", background: "rgba(0,161,198,0.2)", border: `1px solid ${BRAND.pacificCyan}`, borderRadius: "6px", padding: "0.6rem 1rem", fontSize: "0.8rem", color: BRAND.mintGreen }}>
+              ✓ Results sent to {respondent.email} and your Integri Group coach.
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
+          {[
+            { label: "Personal Signals", score: personalScore, max: 80, desc: "How I Work · How I Feel About My Work", color: BRAND.pacificCyan },
+            { label: "System Signals", score: systemScore, max: 160, desc: "Enabled · With Others · When · Where", color: BRAND.springGreen },
+          ].map(g => (
+            <div key={g.label} style={{ background: "#fff", border: "1px solid #e0eaf0", borderRadius: "10px", padding: "1.5rem" }}>
+              <div style={{ color: g.color, fontSize: "0.68rem", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "0.4rem" }}>{g.label}</div>
+              <div style={{ color: BRAND.indigoDye, fontSize: "2.2rem", fontWeight: "400" }}>{g.score}<span style={{ fontSize: "1rem", color: BRAND.fountainBlue }}>/{g.max}</span></div>
+              <div style={{ color: "#9aacbe", fontSize: "0.72rem", marginTop: "0.2rem" }}>{g.desc}</div>
+              <div style={{ marginTop: "0.75rem", height: 5, background: "#e0eaf0", borderRadius: 3 }}>
+                <div style={{ height: "100%", width: `${(g.score / g.max) * 100}%`, background: g.color, borderRadius: 3 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ background: "#fff", border: "1px solid #e0eaf0", borderRadius: "10px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+          <h3 style={{ color: BRAND.indigoDye, margin: "0 0 1.25rem", fontWeight: "400", fontSize: "1.1rem" }}>Signal Breakdown</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {signals.map((sig, idx) => {
+              const score = signalScores[idx];
+              const band = getSignalBand(score);
+              return (
+                <div key={idx}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span>{sig.icon}</span>
+                      <span style={{ color: BRAND.firefly, fontSize: "0.85rem" }}>{sig.title}</span>
+                      <span style={{ fontSize: "0.58rem", letterSpacing: "0.08em", textTransform: "uppercase", color: sig.type === "personal" ? BRAND.pacificCyan : BRAND.springGreen, border: `1px solid ${sig.type === "personal" ? BRAND.pacificCyan : BRAND.springGreen}55`, padding: "0.1rem 0.4rem", borderRadius: "3px" }}>
+                        {sig.type}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                      <span style={{ fontSize: "0.63rem", letterSpacing: "0.05em", textTransform: "uppercase", color: band.color, background: band.bg, padding: "0.2rem 0.6rem", borderRadius: "3px" }}>{band.label}</span>
+                      <span style={{ color: BRAND.indigoDye, fontSize: "0.9rem", minWidth: 38, textAlign: "right" }}>{score}/40</span>
+                    </div>
+                  </div>
+                  <div style={{ height: 6, background: "#e0eaf0", borderRadius: 3 }}>
+                    <div style={{ height: "100%", width: `${(score / 40) * 100}%`, background: `linear-gradient(90deg, ${sig.color}, ${sig.accent})`, borderRadius: 3 }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{ background: BRAND.mintGreen, border: `1px solid ${BRAND.teal}33`, borderRadius: "10px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+          <h3 style={{ color: BRAND.teal, margin: "0 0 1rem", fontWeight: "400", fontSize: "1rem", letterSpacing: "0.05em" }}>Reflection Questions</h3>
+          {[
+            "Which two signals scored the highest? What supports those strengths?",
+            "Which two signals scored the lowest? What is driving them?",
+            "Are the friction points personal, social, systemic, or structural?",
+            "If you could improve just one signal in the next 30 days, which would make the biggest difference?",
+            "What does your WorkSignals profile tell you about your leadership, your environment, and your team?",
+          ].map((q, i) => (
+            <div key={i} style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start", marginBottom: i < 4 ? "0.65rem" : 0 }}>
+              <span style={{ color: BRAND.teal, fontSize: "0.8rem", marginTop: "0.1rem", minWidth: 16, fontWeight: "600" }}>{i + 1}.</span>
+              <span style={{ color: BRAND.firefly, fontSize: "0.85rem", lineHeight: 1.6 }}>{q}</span>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ background: BRAND.indigoDye, borderRadius: "10px", padding: "2rem", textAlign: "center", marginBottom: "1.5rem" }}>
+          <div style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", color: BRAND.fountainBlue, marginBottom: "0.5rem" }}>Ready for your debrief?</div>
+          <h3 style={{ color: "#fff", margin: "0 0 0.75rem", fontWeight: "400", fontSize: "1.4rem" }}>Let's make sense of your signals.</h3>
+          <p style={{ color: BRAND.mintGreen, fontSize: "0.9rem", margin: "0 0 1.5rem", lineHeight: 1.6 }}>
+            A WorkSignals debrief with your Integri Group coach turns your profile into a concrete action plan.
+          </p>
+          <a href="https://calendly.com/robertteed/coaching-discovery-30-mins" target="_blank" rel="noopener noreferrer"
+            style={{ display: "inline-block", background: BRAND.spanishOrange, color: "#fff", textDecoration: "none", padding: "0.85rem 2.5rem", borderRadius: "6px", fontSize: "0.9rem", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "Georgia, serif" }}>
+            Book a Debrief Session →
+          </a>
+        </div>
+
+        <div style={{ textAlign: "center", paddingBottom: "2rem" }}>
+          <button onClick={restart} style={{ background: "transparent", color: BRAND.fountainBlue, border: `1px solid ${BRAND.fountainBlue}`, padding: "0.65rem 1.75rem", fontSize: "0.8rem", letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", borderRadius: "6px", fontFamily: "Georgia, serif" }}>
+            Retake Assessment
+          </button>
+        </div>
+      </div>
+
+      <footer style={{ background: "#fff", borderTop: "1px solid #e0eaf0", padding: "0.75rem 2rem", textAlign: "center" }}>
+        <div style={{ fontSize: "0.7rem", color: "#9aacbe" }}>© 2025 Integri Group · WorkSignals<sup style={{ fontSize: "0.7em" }}>TM</sup> · All rights reserved</div>
+      </footer>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<WorkSignals />);
+  </script>
+</body>
+</html>
