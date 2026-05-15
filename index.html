@@ -133,6 +133,22 @@
       .survey-body, .results-body { padding: 1rem; }
     }
 
+
+    /* HISTORY */
+    .history-card { background: #fff; border: 1px solid #e0eaf0; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .history-title { color: #22435F; font-weight: 400; font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .history-sub { color: #68A1AF; font-size: 0.8rem; font-style: italic; margin-bottom: 1.25rem; }
+    .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .history-table th { color: #68A1AF; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 2px solid #e0eaf0; font-weight: 400; }
+    .history-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #f0f4f8; color: #1C343B; vertical-align: middle; }
+    .history-table tr:last-child td { border-bottom: none; }
+    .history-table tr.current-row td { background: #f8f9fa; font-weight: 600; }
+    .change-up { color: #1a7a3a; font-weight: 600; }
+    .change-down { color: #b71c1c; font-weight: 600; }
+    .change-same { color: #68A1AF; }
+    .history-badge { display: inline-block; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 10px; color: #fff; font-weight: 600; }
+    .first-time-note { background: #BDE3DA; border-radius: 6px; padding: 0.6rem 1rem; font-size: 0.78rem; color: #1C343B; margin-bottom: 1.5rem; text-align: center; }
+
     /* PRINT / PDF STYLES */
     .btn-pdf { background: #008181; color: #fff; border: none; padding: 0.65rem 1.75rem; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 6px; font-family: Georgia, serif; margin-right: 1rem; }
     .btn-pdf:hover { background: #006666; }
@@ -230,6 +246,9 @@
           <div class="field-error" id="err-email">Please enter a valid email.</div>
           <div class="field-hint">Your results will be sent to this address.</div>
         </div>
+        <div style="background:#BDE3DA;border-radius:6px;padding:0.5rem 1rem;font-size:0.78rem;color:#1C343B;margin-bottom:1rem;text-align:center;">
+          Taken WorkSignals&#8482; before? Use the same email to see how your signals have changed.
+        </div>
         <button class="btn-primary" style="width:100%" onclick="submitGate()">View My Results &rarr;</button>
       </div>
     </div>
@@ -258,6 +277,7 @@
       <div class="email-confirm" id="res-email-confirm"></div>
     </div>
     <div class="split-grid" id="res-split"></div>
+    <div id="res-history"></div>
     <div class="breakdown-card">
       <h3 class="breakdown-title">Signal Breakdown</h3>
       <div id="res-breakdown"></div>
@@ -377,6 +397,7 @@ function submitGate(){
 
 function showResults(){
   var scores=SIGNALS.map(function(_,i){return sigScore(i);});
+  setTimeout(function(){fetchHistory(respondent.email, scores);}, 2000);
   var total=scores.reduce(function(a,b){return a+b;},0);
   var band=totalBand(total);
   var ps=scores[0]+scores[1],ss=scores[2]+scores[3]+scores[4]+scores[5];
@@ -414,6 +435,87 @@ function sendData(){
   fetch('https://sheetdb.io/api/v1/bowdesja99vxx',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({data:[{Date:new Date().toLocaleString(),Name:respondent.name,Email:respondent.email,'Total Score':total,'Overall Band':band.label,'How I Work':scores[0],'How I Feel About My Work':scores[1],'How Enabled I Am to Do My Work':scores[2],'How I Work With Others':scores[3],'When I Work':scores[4],'Where I Work':scores[5]}]})})
     .then(function(){document.getElementById('res-email-confirm').style.display='block';document.getElementById('res-email-confirm').textContent='✓ Results sent to '+respondent.email+' and your Integri Group coach.';})
     .catch(function(e){console.error(e);});
+}
+
+
+function sigBandColor(score){
+  if(score>=34)return{bg:"#1a7a3a",label:"Very Healthy"};
+  if(score>=26)return{bg:"#4caf6e",label:"Healthy"};
+  if(score>=18)return{bg:"#e6a817",label:"Mixed"};
+  if(score>=10)return{bg:"#e05c3a",label:"Weak"};
+  return{bg:"#b71c1c",label:"At-Risk"};
+}
+
+function renderHistory(previousRows, currentScores){
+  var el = document.getElementById('res-history');
+  if(!previousRows || previousRows.length === 0){
+    el.innerHTML = '<div class="first-time-note">&#127881; Welcome! This is your first WorkSignals&#8482; assessment. Complete it again in 90 days to track how your signals change over time.</div>';
+    return;
+  }
+
+  // Get most recent previous row
+  var prev = previousRows[previousRows.length - 1];
+  var prevDate = prev['Date'] || 'Previous assessment';
+  var prevScores = [
+    parseInt(prev['How I Work'])||0,
+    parseInt(prev['How I Feel About My Work'])||0,
+    parseInt(prev['How Enabled I Am to Do My Work'])||0,
+    parseInt(prev['How I Work With Others'])||0,
+    parseInt(prev['When I Work'])||0,
+    parseInt(prev['Where I Work'])||0
+  ];
+
+  var totalPrev = prevScores.reduce(function(a,b){return a+b;},0);
+  var totalCurr = currentScores.reduce(function(a,b){return a+b;},0);
+  var totalChange = totalCurr - totalPrev;
+  var totalChangeStr = totalChange > 0 ? '<span class="change-up">&#8593; +'+totalChange+'</span>' : totalChange < 0 ? '<span class="change-down">&#8595; '+totalChange+'</span>' : '<span class="change-same">&#8594; No change</span>';
+
+  var rows = SIGNALS.map(function(sig, i){
+    var prev_s = prevScores[i], curr_s = currentScores[i];
+    var diff = curr_s - prev_s;
+    var diffStr = diff > 0 ? '<span class="change-up">&#8593; +'+diff+'</span>' : diff < 0 ? '<span class="change-down">&#8595; '+diff+'</span>' : '<span class="change-same">&#8594;</span>';
+    var prevBand = sigBandColor(prev_s), currBand = sigBandColor(curr_s);
+    return '<tr class="current-row">'+
+      '<td>'+sig.icon+' '+sig.title+'</td>'+
+      '<td><span class="history-badge" style="background:'+prevBand.bg+'">'+prevBand.label+'</span> '+prev_s+'/40</td>'+
+      '<td><span class="history-badge" style="background:'+currBand.bg+'">'+currBand.label+'</span> '+curr_s+'/40</td>'+
+      '<td>'+diffStr+'</td>'+
+      '</tr>';
+  }).join('');
+
+  var html = '<div class="history-card">'+
+    '<h3 class="history-title">Your Signal History</h3>'+
+    '<p class="history-sub">Comparing your current results to your previous assessment on '+prevDate+(previousRows.length > 1 ? ' &middot; '+previousRows.length+' assessments on record' : '')+'</p>'+
+    '<table class="history-table">'+
+    '<thead><tr><th>Signal</th><th>Previous</th><th>Current</th><th>Change</th></tr></thead>'+
+    '<tbody>'+rows+
+    '<tr style="border-top:2px solid #e0eaf0">'+
+    '<td><strong>Total Score</strong></td>'+
+    '<td><strong>'+totalPrev+'/240</strong></td>'+
+    '<td><strong>'+totalCurr+'/240</strong></td>'+
+    '<td><strong>'+totalChangeStr+'</strong></td>'+
+    '</tr>'+
+    '</tbody></table>'+
+    '</div>';
+
+  el.innerHTML = html;
+}
+
+async function fetchHistory(email, currentScores){
+  try {
+    var encoded = encodeURIComponent(email);
+    var resp = await fetch('https://sheetdb.io/api/v1/bowdesja99vxx/search?Email='+encoded);
+    var rows = await resp.json();
+    // Filter out the current submission (most recent) — keep all but last
+    if(rows && rows.length > 1){
+      renderHistory(rows.slice(0, rows.length-1), currentScores);
+    } else {
+      renderHistory([], currentScores);
+    }
+  } catch(e){
+    console.error('History fetch error:', e);
+    renderHistory([], currentScores);
+  }
 }
 
 function restartAssessment(){answers={};currentSig=0;respondent={name:'',email:''};document.getElementById('inp-name').value='';document.getElementById('inp-email').value='';showScreen('intro');}
