@@ -197,7 +197,7 @@
 <!-- INTRO -->
 <div id="intro" class="screen active">
   <header>
-    <img src="/logo.png" alt="Integri Group" class="logo" />
+    <a href="https://integrigroup.com" target="_blank" rel="noopener noreferrer"><img src="/logo.png" alt="Integri Group" class="logo" /></a>
     <span class="header-label">Leadership Diagnostic</span>
   </header>
   <div class="body">
@@ -215,7 +215,7 @@
     </div>
   </div>
   <footer>
-    <img src="/logo.png" alt="Integri Group" class="logo-sm" />
+    <a href="https://integrigroup.com" target="_blank" rel="noopener noreferrer"><img src="/logo.png" alt="Integri Group" class="logo-sm" /></a>
     <span class="footer-text">&copy; 2025 Integri Group &middot; WorkSignals<sup>TM</sup> &middot; All rights reserved &middot; <span style="color:#22435F;font-weight:600">v1.0</span></span>
   </footer>
 </div>
@@ -224,7 +224,7 @@
 <div id="survey" class="screen">
   <header style="padding:0.75rem 2rem;">
     <div class="progress-header-inner">
-      <img src="/logo.png" alt="Integri Group" style="height:30px;width:auto;" />
+      <a href="https://integrigroup.com" target="_blank" rel="noopener noreferrer"><img src="/logo.png" alt="Integri Group" style="height:30px;width:auto;" /></a>
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill"></div></div>
       <span class="progress-count" id="prog-count">0/48</span>
     </div>
@@ -243,7 +243,7 @@
 <!-- GATE -->
 <div id="gate" class="screen">
   <header>
-    <img src="/logo.png" alt="Integri Group" class="logo" />
+    <a href="https://integrigroup.com" target="_blank" rel="noopener noreferrer"><img src="/logo.png" alt="Integri Group" class="logo" /></a>
     <span class="header-label">WorkSignals<sup style="font-size:0.7em">TM</sup></span>
   </header>
   <div class="body">
@@ -278,7 +278,7 @@
 <!-- RESULTS -->
 <div id="results" class="screen">
   <header>
-    <img src="/logo.png" alt="Integri Group" class="logo" />
+    <a href="https://integrigroup.com" target="_blank" rel="noopener noreferrer"><img src="/logo.png" alt="Integri Group" class="logo" /></a>
     <span class="header-label" id="res-header">WorkSignals<sup style="font-size:0.7em">TM</sup> Results</span>
   </header>
   <div class="print-header">
@@ -545,10 +545,12 @@ function sendData(){
       to_email:respondent.email,
       total_score:total+'/240',
       overall_band:band.emoji+' '+band.action,
+      pill_bg:band.bg,
       band_message:bandMessages[band.action]||'',
       personal_score:(scores[0]+scores[1])+'/80',
       system_score:(scores[2]+scores[3]+scores[4]+scores[5])+'/160',
       reply_to:'robert.teed@integrigroup.com',
+      bcc:'47095628@bcc.hubspot.com',
       s1_title:SIGNALS[0].title, s1_score:scores[0]+'/40', s1_band:sigBand(scores[0]).emoji+' '+sigBand(scores[0]).action,
       s2_title:SIGNALS[1].title, s2_score:scores[1]+'/40', s2_band:sigBand(scores[1]).emoji+' '+sigBand(scores[1]).action,
       s3_title:SIGNALS[2].title, s3_score:scores[2]+'/40', s3_band:sigBand(scores[2]).emoji+' '+sigBand(scores[2]).action,
@@ -560,6 +562,9 @@ function sendData(){
 
   fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(params)});
   fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({},params,{template_params:Object.assign({},params.template_params,{to_name:'Robert Teed',to_email:'robert.teed@integrigroup.com',reply_to:respondent.email})}))});
+  // Send copy to HubSpot for CRM logging
+  fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({},params,{template_params:Object.assign({},params.template_params,{to_name:'HubSpot Log',to_email:'47095628@bcc.hubspot.com',reply_to:respondent.email})}))});
+
   fetch('https://sheetdb.io/api/v1/bowdesja99vxx',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({data:[{Date:new Date().toLocaleString(),Name:respondent.name,Email:respondent.email,'Total Score':total,'Overall Band':band.action,'How I Work':scores[0],'How I Feel About My Work':scores[1],'How Enabled I Am to Do My Work':scores[2],'How I Work With Others':scores[3],'When I Work':scores[4],'Where I Work':scores[5]}]})})
     .then(function(){document.getElementById('res-email-confirm').style.display='block';document.getElementById('res-email-confirm').textContent='✓ Results sent to '+respondent.email+' and your Integri Group coach.';})
     .catch(function(e){console.error(e);});
