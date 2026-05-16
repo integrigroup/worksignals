@@ -138,7 +138,11 @@
     .history-card { background: #fff; border: 1px solid #e0eaf0; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
     .history-title { color: #22435F; font-weight: 400; font-size: 1.1rem; margin-bottom: 0.5rem; }
     .history-sub { color: #68A1AF; font-size: 0.8rem; font-style: italic; margin-bottom: 1.25rem; }
-    .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; table-layout: fixed; }
+    .history-card { overflow-x: auto; }
+    .history-table th:nth-child(1) { width: 30%; }
+    .history-table th:nth-child(2), .history-table th:nth-child(3) { width: 28%; }
+    .history-table th:nth-child(4) { width: 14%; }
     .history-table th { color: #68A1AF; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 2px solid #e0eaf0; font-weight: 400; }
     .history-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #f0f4f8; color: #1C343B; vertical-align: middle; }
     .history-table tr:last-child td { border-bottom: none; }
@@ -146,7 +150,9 @@
     .change-up { color: #1a7a3a; font-weight: 600; }
     .change-down { color: #b71c1c; font-weight: 600; }
     .change-same { color: #68A1AF; }
-    .history-badge { display: inline-block; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 10px; color: #fff; font-weight: 600; }
+    .history-badge { display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 10px; color: #fff; font-weight: 600; min-width: 90px; text-align: center; }
+    .history-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #f0f4f8; color: #1C343B; vertical-align: middle; white-space: nowrap; }
+    .history-table th { white-space: nowrap; }
     .first-time-note { background: #BDE3DA; border-radius: 6px; padding: 0.6rem 1rem; font-size: 0.78rem; color: #1C343B; margin-bottom: 1.5rem; text-align: center; }
 
     /* PRINT / PDF STYLES */
@@ -524,10 +530,10 @@ function renderHistory(previousRows, currentScores){
     var diffStr = diff > 0 ? '<span class="change-up">&#8593; +'+diff+'</span>' : diff < 0 ? '<span class="change-down">&#8595; '+diff+'</span>' : '<span class="change-same">&#8594;</span>';
     var prevBand = sigBandColor(prev_s), currBand = sigBandColor(curr_s);
     return '<tr class="current-row">'+
-      '<td>'+sig.icon+' '+sig.title+'</td>'+
-      '<td><span class="history-badge" style="background:'+prevBand.bg+'">'+prevBand.label+'</span> '+prev_s+'/40</td>'+
-      '<td><span class="history-badge" style="background:'+currBand.bg+'">'+currBand.label+'</span> '+curr_s+'/40</td>'+
-      '<td>'+diffStr+'</td>'+
+      '<td style="white-space:nowrap">'+sig.icon+' '+sig.title+'</td>'+
+      '<td style="white-space:nowrap"><span class="history-badge" style="background:'+prevBand.bg+';min-width:80px;display:inline-block;text-align:center">'+prevBand.label+'</span>&nbsp;'+prev_s+'/40</td>'+
+      '<td style="white-space:nowrap"><span class="history-badge" style="background:'+currBand.bg+';min-width:80px;display:inline-block;text-align:center">'+currBand.label+'</span>&nbsp;'+curr_s+'/40</td>'+
+      '<td style="white-space:nowrap">'+diffStr+'</td>'+
       '</tr>';
   }).join('');
 
@@ -538,9 +544,9 @@ function renderHistory(previousRows, currentScores){
     '<thead><tr><th>Signal</th><th>Previous</th><th>Current</th><th>Change</th></tr></thead>'+
     '<tbody>'+rows+
     '<tr style="border-top:2px solid #e0eaf0">'+
-    '<td><strong>Total Score</strong></td>'+
-    '<td><strong>'+totalPrev+'/240</strong></td>'+
-    '<td><strong>'+totalCurr+'/240</strong></td>'+
+    '<td style="white-space:nowrap"><strong>Total Score</strong></td>'+
+    '<td style="white-space:nowrap"><strong>'+totalPrev+'/240</strong></td>'+
+    '<td style="white-space:nowrap"><strong>'+totalCurr+'/240</strong></td>'+
     '<td><strong>'+totalChangeStr+'</strong></td>'+
     '</tr>'+
     '</tbody></table>'+
