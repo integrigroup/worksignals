@@ -154,6 +154,18 @@
     .history-table th { white-space: nowrap; }
     .first-time-note { background: #BDE3DA; border-radius: 6px; padding: 0.6rem 1rem; font-size: 0.78rem; color: #1C343B; margin-bottom: 1.5rem; text-align: center; }
 
+
+    /* ANSWER REVIEW */
+    .review-toggle { background: none; border: none; color: #68A1AF; font-size: 0.75rem; font-family: Georgia, serif; cursor: pointer; padding: 0; margin-top: 0.6rem; letter-spacing: 0.05em; text-decoration: underline; }
+    .review-panel { display: none; margin-top: 0.75rem; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 0.75rem; }
+    .review-panel.open { display: block; }
+    .review-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding: 0.4rem 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .review-row:last-child { border-bottom: none; }
+    .review-q { color: #1C343B; font-size: 0.78rem; line-height: 1.5; flex: 1; }
+    .review-q-num { font-size: 0.7rem; color: #68A1AF; margin-right: 0.3rem; }
+    .review-rating { display: flex; gap: 3px; flex-shrink: 0; }
+    .review-dot { width: 10px; height: 10px; border-radius: 50%; }
+
     /* PRINT / PDF STYLES */
     .btn-pdf { background: #008181; color: #fff; border: none; padding: 0.65rem 1.75rem; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 6px; font-family: Georgia, serif; margin-right: 1rem; }
     .btn-pdf:hover { background: #006666; }
@@ -455,6 +467,22 @@ function showResults(){
   // Signal breakdown with definitions
   document.getElementById('res-breakdown').innerHTML=SIGNALS.map(function(sig,i){
     var sc=scores[i],b=sigBand(sc),pct=sc/40*100,tc=sig.type==='personal'?'#00A7C6':'#81B5A1';
+    var qStart=i*8;
+
+    // Build review rows for each question
+    var reviewRows = sig.questions.map(function(q, qi){
+      var rating = answers[i+'-'+qi] || 0;
+      var dots = [1,2,3,4,5].map(function(v){
+        var filled = v <= rating;
+        var dotColor = filled ? b.bg : 'rgba(0,0,0,0.12)';
+        return '<div class="review-dot" style="background:'+dotColor+'"></div>';
+      }).join('');
+      return '<div class="review-row">'+
+        '<span class="review-q"><span class="review-q-num">'+(qStart+qi+1)+'.</span>'+q+'</span>'+
+        '<div class="review-rating">'+dots+'</div>'+
+        '</div>';
+    }).join('');
+
     return '<div style="background:'+b.light+';border-radius:8px;padding:1rem 1.25rem;border-left:4px solid '+b.bg+';margin-bottom:1rem">'+
       '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;flex-wrap:wrap">'+
         '<span>'+sig.icon+'</span>'+
@@ -469,7 +497,9 @@ function showResults(){
         '<span style="color:#22435F;font-size:0.9rem;font-weight:600;white-space:nowrap">'+sc+'/40</span>'+
         '<span style="background:'+b.bg+';color:#fff;font-size:0.68rem;padding:0.22rem 0.75rem;border-radius:20px;font-weight:600;white-space:nowrap">'+b.emoji+' '+b.action+'</span>'+
       '</div>'+
-      '<p style="color:'+b.bg+';font-size:0.78rem;margin:0;line-height:1.5;font-style:italic">'+b.sigDesc+'</p>'+
+      '<p style="color:'+b.bg+';font-size:0.78rem;margin:0 0 0;line-height:1.5;font-style:italic">'+b.sigDesc+'</p>'+
+      '<button class="review-toggle" onclick="toggleReview(this)">&#9660; Review my answers</button>'+
+      '<div class="review-panel">'+reviewRows+'</div>'+
       '</div>';
   }).join('');
 
@@ -569,6 +599,14 @@ async function fetchHistory(email, currentScores){
     console.error('History fetch error:', e);
     renderHistory([], currentScores);
   }
+}
+
+
+function toggleReview(btn){
+  var panel = btn.nextElementSibling;
+  var isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open');
+  btn.textContent = isOpen ? '▼ Review my answers' : '▲ Hide my answers';
 }
 
 function restartAssessment(){answers={};currentSig=0;respondent={name:'',email:''};document.getElementById('inp-name').value='';document.getElementById('inp-email').value='';showScreen('intro');}
