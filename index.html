@@ -287,7 +287,7 @@
           <div class="score-number" id="res-score">0<span class="score-max">/240</span></div>
           <div style="display:flex;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;justify-content:center;">
             <span id="res-band" style="padding:0.25rem 1rem;border-radius:20px;font-size:0.85rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;"></span>
-            <span id="res-action" style="background:rgba(255,255,255,0.12);color:#fff;padding:0.25rem 1rem;border-radius:20px;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;"></span>
+            <span id="res-action" style="display:none"></span>
           </div>
         </div>
       </div>
@@ -422,10 +422,10 @@ function showResults(){
 
   document.getElementById('res-header').innerHTML='WorkSignals<sup style="font-size:0.7em">TM</sup> Results &middot; '+respondent.name;
   document.getElementById('res-score').innerHTML=total+'<span class="score-max">/240</span>';
-  document.getElementById('res-band').textContent=band.emoji+' '+band.label;
+  document.getElementById('res-band').textContent=band.emoji+' '+band.action;
   document.getElementById('res-band').style.background=band.bg;
   document.getElementById('res-band').style.color='#fff';
-  document.getElementById('res-action').textContent=band.action;
+  document.getElementById('res-action').textContent='';
   document.getElementById('res-desc').textContent=band.desc;
 
   // Traffic light
