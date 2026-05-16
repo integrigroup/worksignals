@@ -510,14 +510,57 @@ function sendData(){
   var scores=SIGNALS.map(function(_,i){return sigScore(i);});
   var total=scores.reduce(function(a,b){return a+b;},0);
   var band=totalBand(total);
-  var breakdown=SIGNALS.map(function(s,i){var b=sigBand(scores[i]);return s.title+': '+scores[i]+'/40 ('+b.label+')';}).join('\n');
+
+  var signalRows=SIGNALS.map(function(s,i){
+    var sc=scores[i],b=sigBand(sc),pct=Math.round(sc/40*100);
+    return '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">'+
+      '<tr><td style="padding:12px 16px;background:'+b.light+';border-left:4px solid '+b.bg+';border-radius:4px;">'+
+        '<table width="100%" cellpadding="0" cellspacing="0">'+
+          '<tr>'+
+            '<td><p style="margin:0 0 2px;font-size:13px;font-weight:600;color:#1C343B;">'+s.icon+' '+s.title+'</p>'+
+            '<p style="margin:0 0 8px;font-size:11px;color:#68A1AF;font-style:italic;">'+s.definition+'</p></td>'+
+            '<td align="right" style="white-space:nowrap;padding-left:16px;">'+
+              '<span style="display:inline-block;background:'+b.bg+';color:#fff;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:12px;">'+b.emoji+' '+b.action+'</span>'+
+              '<span style="display:inline-block;margin-left:8px;font-size:13px;font-weight:600;color:#22435F;">'+sc+'/40</span>'+
+            '</td>'+
+          '</tr>'+
+          '<tr><td colspan="2">'+
+            '<div style="height:6px;background:rgba(0,0,0,0.08);border-radius:3px;margin-top:4px;">'+
+              '<div style="height:100%;width:'+pct+'%;background:'+b.bg+';border-radius:3px;"></div>'+
+            '</div></td></tr>'+
+          '<tr><td colspan="2"><p style="margin:6px 0 0;font-size:11px;color:'+b.bg+';font-style:italic;">'+b.sigDesc+'</p></td></tr>'+
+        '</table>'+
+      '</td></tr></table>';
+  }).join('');
+
+  var bandMessages={
+    'Proceed':'Your signals are healthy and strong. The conditions across your work are largely supporting your performance, energy, and well-being. Keep going — and keep checking.',
+    'Caution':'Some of your signals need attention. Something in your work conditions is creating friction, uncertainty, or risk. Slow down, look closely at your amber and red signals, and decide what needs to change.',
+    'Stop':'Your signals are telling you something important. The conditions across your work are unsustainable and are likely affecting your performance, energy, or well-being in significant ways. This requires action — and a conversation.'
+  };
 
   var params={service_id:'service_250jnbk',template_id:'worksignals_template',user_id:'Cy4Dt65Faf8OvZsjV',
-    template_params:{to_name:respondent.name,to_email:respondent.email,total_score:total+'/240',overall_band:band.label,signal_breakdown:breakdown,personal_score:(scores[0]+scores[1])+'/80',system_score:(scores[2]+scores[3]+scores[4]+scores[5])+'/160',reply_to:'robert.teed@integrigroup.com'}};
+    template_params:{
+      to_name:respondent.name,
+      to_email:respondent.email,
+      total_score:total+'/240',
+      overall_band:band.emoji+' '+band.action,
+      band_message:bandMessages[band.action]||'',
+      personal_score:(scores[0]+scores[1])+'/80',
+      system_score:(scores[2]+scores[3]+scores[4]+scores[5])+'/160',
+      reply_to:'robert.teed@integrigroup.com',
+      s1_title:SIGNALS[0].title, s1_score:scores[0]+'/40', s1_band:sigBand(scores[0]).emoji+' '+sigBand(scores[0]).action,
+      s2_title:SIGNALS[1].title, s2_score:scores[1]+'/40', s2_band:sigBand(scores[1]).emoji+' '+sigBand(scores[1]).action,
+      s3_title:SIGNALS[2].title, s3_score:scores[2]+'/40', s3_band:sigBand(scores[2]).emoji+' '+sigBand(scores[2]).action,
+      s4_title:SIGNALS[3].title, s4_score:scores[3]+'/40', s4_band:sigBand(scores[3]).emoji+' '+sigBand(scores[3]).action,
+      s5_title:SIGNALS[4].title, s5_score:scores[4]+'/40', s5_band:sigBand(scores[4]).emoji+' '+sigBand(scores[4]).action,
+      s6_title:SIGNALS[5].title, s6_score:scores[5]+'/40', s6_band:sigBand(scores[5]).emoji+' '+sigBand(scores[5]).action
+    }
+  };
 
   fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(params)});
   fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({},params,{template_params:Object.assign({},params.template_params,{to_name:'Robert Teed',to_email:'robert.teed@integrigroup.com',reply_to:respondent.email})}))});
-  fetch('https://sheetdb.io/api/v1/bowdesja99vxx',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({data:[{Date:new Date().toLocaleString(),Name:respondent.name,Email:respondent.email,'Total Score':total,'Overall Band':band.label,'How I Work':scores[0],'How I Feel About My Work':scores[1],'How Enabled I Am to Do My Work':scores[2],'How I Work With Others':scores[3],'When I Work':scores[4],'Where I Work':scores[5]}]})})
+  fetch('https://sheetdb.io/api/v1/bowdesja99vxx',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({data:[{Date:new Date().toLocaleString(),Name:respondent.name,Email:respondent.email,'Total Score':total,'Overall Band':band.action,'How I Work':scores[0],'How I Feel About My Work':scores[1],'How Enabled I Am to Do My Work':scores[2],'How I Work With Others':scores[3],'When I Work':scores[4],'Where I Work':scores[5]}]})})
     .then(function(){document.getElementById('res-email-confirm').style.display='block';document.getElementById('res-email-confirm').textContent='✓ Results sent to '+respondent.email+' and your Integri Group coach.';})
     .catch(function(e){console.error(e);});
 }
