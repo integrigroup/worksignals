@@ -90,7 +90,7 @@
     .score-eyebrow { font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: #68A1AF; margin-bottom: 0.75rem; }
     .score-number { font-size: 4.5rem; color: #fff; font-weight: 400; line-height: 1; }
     .score-max { font-size: 1.8rem; color: #68A1AF; }
-    .score-band { margin-top: 0.5rem; font-size: 1.1rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+    .score-band { margin-top: 0.5rem; font-size: 1.1rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; display:inline-block; padding: 0.25rem 1rem; border-radius: 20px; }
     .score-desc { color: #BDE3DA; font-size: 0.9rem; margin: 0.75rem auto 0; max-width: 440px; line-height: 1.6; }
     .email-confirm { display: none; margin-top: 1rem; background: rgba(0,167,198,0.2); border: 1px solid #00A7C6; border-radius: 6px; padding: 0.6rem 1rem; font-size: 0.8rem; color: #BDE3DA; }
     .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
@@ -271,8 +271,20 @@
   <div class="results-body">
     <div class="score-hero">
       <div class="score-eyebrow">Your WorkSignals<sup>TM</sup> Profile</div>
-      <div class="score-number" id="res-score">0<span class="score-max">/240</span></div>
-      <div class="score-band" id="res-band"></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;">
+        <div id="res-traffic-light" style="background:#111;border-radius:10px;padding:0.6rem 0.5rem;display:flex;flex-direction:column;gap:5px;align-items:center;">
+          <div id="tl-green" style="width:26px;height:26px;border-radius:50%;background:#2a2a2a;transition:all 0.3s;"></div>
+          <div id="tl-amber" style="width:26px;height:26px;border-radius:50%;background:#2a2a2a;transition:all 0.3s;"></div>
+          <div id="tl-red" style="width:26px;height:26px;border-radius:50%;background:#2a2a2a;transition:all 0.3s;"></div>
+        </div>
+        <div>
+          <div class="score-number" id="res-score">0<span class="score-max">/240</span></div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;justify-content:center;">
+            <span id="res-band" style="padding:0.25rem 1rem;border-radius:20px;font-size:0.85rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;"></span>
+            <span id="res-action" style="background:rgba(255,255,255,0.12);color:#fff;padding:0.25rem 1rem;border-radius:20px;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;"></span>
+          </div>
+        </div>
+      </div>
       <p class="score-desc" id="res-desc"></p>
       <div class="email-confirm" id="res-email-confirm"></div>
     </div>
@@ -284,11 +296,11 @@
     </div>
     <div class="reflection-card">
       <h3 class="reflection-title">Reflection Questions</h3>
-      <div class="ref-item"><span class="ref-num">1.</span><span class="ref-text">Which two signals scored the highest? What supports those strengths?</span></div>
-      <div class="ref-item"><span class="ref-num">2.</span><span class="ref-text">Which two signals scored the lowest? What is driving them?</span></div>
-      <div class="ref-item"><span class="ref-num">3.</span><span class="ref-text">Are the friction points personal, social, systemic, or structural?</span></div>
-      <div class="ref-item"><span class="ref-num">4.</span><span class="ref-text">If you could improve just one signal in the next 30 days, which would make the biggest difference?</span></div>
-      <div class="ref-item" style="margin-bottom:0"><span class="ref-num">5.</span><span class="ref-text">What does your WorkSignals profile tell you about your leadership, your environment, and your team?</span></div>
+      <div class="ref-item"><span class="ref-num">1.</span><span class="ref-text">Which signals are green? What conditions are creating those results?</span></div>
+      <div class="ref-item"><span class="ref-num">2.</span><span class="ref-text">Which signals are amber or red? What is driving them?</span></div>
+      <div class="ref-item"><span class="ref-num">3.</span><span class="ref-text">Are the amber and red signals personal, social, systemic, or structural?</span></div>
+      <div class="ref-item"><span class="ref-num">4.</span><span class="ref-text">If you could move just one signal from amber or red to green in the next 30 days, which would make the biggest difference?</span></div>
+      <div class="ref-item" style="margin-bottom:0"><span class="ref-num">5.</span><span class="ref-text">What do your WorkSignals tell you about your leadership, your environment, and your team?</span></div>
     </div>
     <div class="cta-card">
       <div class="cta-eyebrow">Ready for your debrief?</div>
@@ -313,8 +325,8 @@ var SIGNALS=[{id:1,title:"How I Work",subtitle:"Habits, rhythms, focus, energy",
 
 var answers={},currentSig=0,respondent={name:'',email:''};
 
-function sigBand(s){if(s>=34)return{label:"Very Healthy Signal",color:"#fff",bg:"#008181"};if(s>=26)return{label:"Healthy Signal",color:"#fff",bg:"#00A7C6"};if(s>=18)return{label:"Mixed Signal",color:"#1C343B",bg:"#BDE3DA"};if(s>=10)return{label:"Weak Signal",color:"#fff",bg:"#F36C24"};return{label:"At-Risk Signal",color:"#fff",bg:"#c0392b"};}
-function totalBand(t){if(t>=194)return{label:"Healthy Signals",color:"#81B5A1",desc:"You have supportive systems, strong habits, and alignment across how, when, where, and with whom you work."};if(t>=145)return{label:"Mixed Signals",color:"#00A7C6",desc:"Most areas are working, but 1–2 signals may be restricting energy, performance, or fulfillment."};if(t>=97)return{label:"Weak Signals Emerging",color:"#F36C24",desc:"Several signals may be under strain. You may feel friction, fatigue, or tension in your work experience."};return{label:"At-Risk Signals",color:"#e74c3c",desc:"Multiple systemic, structural, or interpersonal barriers may be affecting performance, energy, and well-being."};}
+function sigBand(s){if(s>=28)return{label:"Green",action:"Proceed",emoji:"🟢",bg:"#1a7a3a",light:"#e8f5ee",sigDesc:"This signal is healthy and strong. The conditions here are supporting your performance, energy, and well-being. Keep going."};if(s>=16)return{label:"Amber",action:"Caution",emoji:"🟡",bg:"#c17f00",light:"#fdf6e3",sigDesc:"This signal needs attention. Something here is creating friction, uncertainty, or risk. Slow down, look closely, and decide what needs to change."};return{label:"Red",action:"Stop",emoji:"🔴",bg:"#b71c1c",light:"#fbeaea",sigDesc:"This signal is telling you something important. The conditions here are unsustainable and are likely affecting your performance, energy, or well-being in significant ways. This requires action.";};}
+function totalBand(t){if(t>=169)return{label:"Green",action:"Proceed",emoji:"🟢",bg:"#1a7a3a",desc:"Your signals are healthy and strong. The conditions across your work are largely supporting your performance, energy, and well-being. Keep going — and keep checking."};if(t>=97)return{label:"Amber",action:"Caution",emoji:"🟡",bg:"#c17f00",desc:"Some of your signals need attention. Something in your work conditions is creating friction, uncertainty, or risk. Slow down, look closely at your amber and red signals, and decide what needs to change."};return{label:"Red",action:"Stop",emoji:"🔴",bg:"#b71c1c",desc:"Your signals are telling you something important. The conditions across your work are unsustainable and are likely affecting your performance, energy, or well-being in significant ways. This requires action — and a conversation."};}
 function showScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 function sigScore(si){return SIGNALS[si].questions.reduce(function(a,_,qi){return a+(answers[si+'-'+qi]||0);},0);}
 function answered(){return Object.keys(answers).length;}
@@ -404,18 +416,56 @@ function showResults(){
 
   document.getElementById('res-header').innerHTML='WorkSignals<sup style="font-size:0.7em">TM</sup> Results &middot; '+respondent.name;
   document.getElementById('res-score').innerHTML=total+'<span class="score-max">/240</span>';
-  document.getElementById('res-band').textContent=band.label;
-  document.getElementById('res-band').style.color=band.color;
+  document.getElementById('res-band').textContent=band.emoji+' '+band.label;
+  document.getElementById('res-band').style.background=band.bg;
+  document.getElementById('res-band').style.color='#fff';
+  document.getElementById('res-action').textContent=band.action;
   document.getElementById('res-desc').textContent=band.desc;
 
-  document.getElementById('res-split').innerHTML=
-    [{label:'Personal Signals',score:ps,max:80,desc:'How I Work · How I Feel About My Work',color:'#00A7C6'},
-     {label:'System Signals',score:ss,max:160,desc:'Enabled · With Others · When · Where',color:'#81B5A1'}]
-    .map(function(g){return '<div class="split-card"><div class="split-label" style="color:'+g.color+'">'+g.label+'</div><div class="split-score">'+g.score+'<span class="split-max">/'+g.max+'</span></div><div class="split-sub">'+g.desc+'</div><div class="split-bar-wrap"><div class="split-bar" style="width:'+(g.score/g.max*100)+'%;background:'+g.color+'"></div></div></div>';}).join('');
+  // Traffic light
+  var tlg=document.getElementById('tl-green'),tla=document.getElementById('tl-amber'),tlr=document.getElementById('tl-red');
+  tlg.style.background=band.label==='Green'?'#1a7a3a':'#2a2a2a';
+  tlg.style.boxShadow=band.label==='Green'?'0 0 14px #1a7a3aaa':'none';
+  tla.style.background=band.label==='Amber'?'#c17f00':'#2a2a2a';
+  tla.style.boxShadow=band.label==='Amber'?'0 0 14px #c17f00aa':'none';
+  tlr.style.background=band.label==='Red'?'#b71c1c':'#2a2a2a';
+  tlr.style.boxShadow=band.label==='Red'?'0 0 14px #b71c1caa':'none';
 
+  // Split grid
+  var splitBands=[
+    {pct:ps/80,  label:'Personal Signals',score:ps,max:80, desc:'How I Work · How I Feel About My Work'},
+    {pct:ss/160, label:'System Signals',  score:ss,max:160,desc:'Enabled · With Others · When · Where'}
+  ];
+  document.getElementById('res-split').innerHTML=splitBands.map(function(g){
+    var gb=g.pct>=0.70?{bg:'#1a7a3a',emoji:'🟢',action:'Proceed'}:g.pct>=0.40?{bg:'#c17f00',emoji:'🟡',action:'Caution'}:{bg:'#b71c1c',emoji:'🔴',action:'Stop'};
+    return '<div class="split-card" style="border-top:4px solid '+gb.bg+'">'+
+      '<div class="split-label" style="color:#68A1AF">'+g.label+'</div>'+
+      '<div class="split-score">'+g.score+'<span class="split-max">/'+g.max+'</span></div>'+
+      '<div style="margin:0.3rem 0 0.6rem"><span style="display:inline-flex;align-items:center;gap:0.3rem;background:'+gb.bg+';color:#fff;font-size:0.65rem;padding:0.18rem 0.65rem;border-radius:10px;font-weight:600">'+gb.emoji+' '+gb.action+'</span></div>'+
+      '<div class="split-sub">'+g.desc+'</div>'+
+      '<div class="split-bar-wrap"><div class="split-bar" style="width:'+(g.pct*100)+'%;background:'+gb.bg+'"></div></div>'+
+      '</div>';
+  }).join('');
+
+  // Signal breakdown with definitions
   document.getElementById('res-breakdown').innerHTML=SIGNALS.map(function(sig,i){
     var sc=scores[i],b=sigBand(sc),pct=sc/40*100,tc=sig.type==='personal'?'#00A7C6':'#81B5A1';
-    return '<div class="sig-row"><div class="sig-row-top"><div class="sig-row-left"><span>'+sig.icon+'</span><span class="sig-name">'+sig.title+'</span><span class="type-badge" style="color:'+tc+';border-color:'+tc+'55">'+sig.type+'</span></div><div class="sig-row-right"><span class="band-badge" style="color:'+b.color+';background:'+b.bg+'">'+b.label+'</span><span class="sig-score">'+sc+'/40</span></div></div><div class="sig-bar-wrap"><div class="sig-bar" style="width:'+pct+'%;background:linear-gradient(90deg,'+sig.color+','+sig.accent+')"></div></div></div>';
+    return '<div style="background:'+b.light+';border-radius:8px;padding:1rem 1.25rem;border-left:4px solid '+b.bg+';margin-bottom:1rem">'+
+      '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;flex-wrap:wrap">'+
+        '<span>'+sig.icon+'</span>'+
+        '<span style="color:#1C343B;font-size:0.9rem;font-weight:600">'+sig.title+'</span>'+
+        '<span style="font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:'+tc+';border:1px solid '+tc+'55;padding:0.1rem 0.4rem;border-radius:3px">'+sig.type+'</span>'+
+      '</div>'+
+      '<p style="color:#1C343B;font-size:0.82rem;margin:0 0 0.75rem;line-height:1.6;font-style:italic;opacity:0.8">&ldquo;'+sig.definition+'&rdquo;</p>'+
+      '<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.6rem;flex-wrap:wrap">'+
+        '<div style="flex:1;height:7px;background:rgba(0,0,0,0.08);border-radius:4px;min-width:80px">'+
+          '<div style="height:100%;width:'+pct+'%;background:'+b.bg+';border-radius:4px"></div>'+
+        '</div>'+
+        '<span style="color:#22435F;font-size:0.9rem;font-weight:600;white-space:nowrap">'+sc+'/40</span>'+
+        '<span style="background:'+b.bg+';color:#fff;font-size:0.68rem;padding:0.22rem 0.75rem;border-radius:20px;font-weight:600;white-space:nowrap">'+b.emoji+' '+b.action+'</span>'+
+      '</div>'+
+      '<p style="color:'+b.bg+';font-size:0.78rem;margin:0;line-height:1.5;font-style:italic">'+b.sigDesc+'</p>'+
+      '</div>';
   }).join('');
 
   showScreen('results');
@@ -439,11 +489,9 @@ function sendData(){
 
 
 function sigBandColor(score){
-  if(score>=34)return{bg:"#1a7a3a",label:"Very Healthy"};
-  if(score>=26)return{bg:"#4caf6e",label:"Healthy"};
-  if(score>=18)return{bg:"#e6a817",label:"Mixed"};
-  if(score>=10)return{bg:"#e05c3a",label:"Weak"};
-  return{bg:"#b71c1c",label:"At-Risk"};
+  if(score>=28)return{bg:"#1a7a3a",label:"🟢 Proceed"};
+  if(score>=16)return{bg:"#c17f00",label:"🟡 Caution"};
+  return{bg:"#b71c1c",label:"🔴 Stop"};
 }
 
 function renderHistory(previousRows, currentScores){
