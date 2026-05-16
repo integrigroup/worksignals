@@ -199,7 +199,7 @@
   </div>
   <footer>
     <img src="/logo.png" alt="Integri Group" class="logo-sm" />
-    <span class="footer-text">&copy; 2025 Integri Group &middot; WorkSignals<sup>TM</sup> &middot; All rights reserved &middot; <span style="color:#BDE3DA">v1.0</span></span>
+    <span class="footer-text">&copy; 2025 Integri Group &middot; WorkSignals<sup>TM</sup> &middot; All rights reserved &middot; <span style="color:#22435F;font-weight:600">v1.0</span></span>
   </footer>
 </div>
 
@@ -325,7 +325,7 @@ var SIGNALS=[{id:1,title:"How I Work",subtitle:"Habits, rhythms, focus, energy",
 
 var answers={},currentSig=0,respondent={name:'',email:''};
 
-function sigBand(s){if(s>=28)return{label:"Green",action:"Proceed",emoji:"🟢",bg:"#1a7a3a",light:"#e8f5ee",sigDesc:"This signal is healthy and strong. The conditions here are supporting your performance, energy, and well-being. Keep going."};if(s>=16)return{label:"Amber",action:"Caution",emoji:"🟡",bg:"#c17f00",light:"#fdf6e3",sigDesc:"This signal needs attention. Something here is creating friction, uncertainty, or risk. Slow down, look closely, and decide what needs to change."};return{label:"Red",action:"Stop",emoji:"🔴",bg:"#b71c1c",light:"#fbeaea",sigDesc:"This signal is telling you something important. The conditions here are unsustainable and are likely affecting your performance, energy, or well-being in significant ways. This requires action.";};}
+function sigBand(s){if(s>=28)return{label:"Green",action:"Proceed",emoji:"🟢",bg:"#1a7a3a",light:"#e8f5ee",sigDesc:"This signal is healthy and strong. The conditions here are supporting your performance, energy, and well-being. Keep going."};if(s>=16)return{label:"Amber",action:"Caution",emoji:"🟡",bg:"#c17f00",light:"#fdf6e3",sigDesc:"This signal needs attention. Something here is creating friction, uncertainty, or risk. Slow down, look closely, and decide what needs to change."};return{label:"Red",action:"Stop",emoji:"🔴",bg:"#b71c1c",light:"#fbeaea",sigDesc:"This signal is telling you something important. The conditions here are unsustainable and are likely affecting your performance, energy, or well-being in significant ways. This requires action."};}
 function totalBand(t){if(t>=169)return{label:"Green",action:"Proceed",emoji:"🟢",bg:"#1a7a3a",desc:"Your signals are healthy and strong. The conditions across your work are largely supporting your performance, energy, and well-being. Keep going — and keep checking."};if(t>=97)return{label:"Amber",action:"Caution",emoji:"🟡",bg:"#c17f00",desc:"Some of your signals need attention. Something in your work conditions is creating friction, uncertainty, or risk. Slow down, look closely at your amber and red signals, and decide what needs to change."};return{label:"Red",action:"Stop",emoji:"🔴",bg:"#b71c1c",desc:"Your signals are telling you something important. The conditions across your work are unsustainable and are likely affecting your performance, energy, or well-being in significant ways. This requires action — and a conversation."};}
 function showScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 function sigScore(si){return SIGNALS[si].questions.reduce(function(a,_,qi){return a+(answers[si+'-'+qi]||0);},0);}
